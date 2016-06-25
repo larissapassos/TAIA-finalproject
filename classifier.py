@@ -6,6 +6,7 @@ from nltk.corpus import stopwords
 from twokenize import tokenize as tweet_tokenizer
 import Processor, sys
 import numpy as np
+from sklearn.metrics import precision_recall_fscore_support as prfs
 
 class ML:
     def __init__(self):
@@ -39,7 +40,8 @@ class ML:
         X_train, y_train = self.X[:cutoff], self.labels[:cutoff]
         X_test, y_test = self.X[cutoff:], np.array(self.labels[cutoff:])
         svm.fit(X_train, y_train)
-        preds = svm.predict(X_test)
-        fitness = (preds == y_test).sum() / (y_test.shape[0]+.0)
-        print "fitness: %.6f achieved with C=%.6f and gamma=%.6f" % (fitness, C, gamma)
+        y_pred = svm.predict(X_test)
+        # fitness = (y_pred == y_test).sum() / (y_test.shape[0]+.0)
+        fitness = prfs(y_test, y_pred, average='macro')[2]
+        print "F-score macro: %.6f achieved with C=%.6f and gamma=%.6f" % (fitness, C, gamma)
         return fitness

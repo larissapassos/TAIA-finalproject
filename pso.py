@@ -80,6 +80,8 @@ class Pso:
         rounds = 0
         diff = np.inf
         cur_best = None
+        g_bests = [self.g_best_fitness]
+        g_all = [[getattr(i, 'fitness') for i in self.population]]
         if self.verbose == 1:
             print "iteration: %d" % rounds
             print self.g_best, self.g_best_fitness
@@ -89,16 +91,21 @@ class Pso:
                 self.get_position(p)
                 self.get_fitness(p)
             rounds += 1
+            g_bests.append(self.g_best_fitness)
+            g_all.append([getattr(i, 'fitness') for i in self.population])
             if cur_best == None:
                 cur_best = self.g_best_fitness
             else:
-                diff = cur_best - self.g_best_fitness
+                diff = abs(cur_best - self.g_best_fitness)
+                print "diff: %.4f" % diff
             if self.verbose == 1:
                 print "iteration: %d" % rounds
                 print self.g_best, self.g_best_fitness
         print "num_iterations: %d, diff: %.6f" % (rounds, diff)
         solution['iterations'] = rounds
         solution['g_best'] = self.g_best
+        solution['g_bests'] = g_bests
+        solution['g_all'] = g_all
         solution['g_best_fitness'] = self.g_best_fitness
         return solution
 
@@ -113,7 +120,7 @@ if __name__ == '__main__':
     ml = ML()
     ml.process_corpus()
     solution = pso.run(population, ml.eval_params, verbose=1)
-    pickle.dump(solution, open("solution.p", "w"))
+    pickle.dump(solution, open("fscore-solution.p", "w"))
 
 # Testing methods
 
